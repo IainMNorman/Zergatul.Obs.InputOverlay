@@ -1,22 +1,21 @@
 using System;
 using System.Collections.Generic;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public class EnumCache<T>
+    where T : struct, Enum
 {
-    public class EnumCache<T>
-        where T : struct, Enum
+    private readonly Dictionary<T, string> dictionary;
+
+    public EnumCache()
     {
-        private readonly Dictionary<T, string> dictionary;
-
-        public EnumCache()
+        dictionary = new Dictionary<T, string>();
+        foreach (T value in Enum.GetValues<T>())
         {
-            dictionary = new Dictionary<T, string>();
-            foreach (T value in Enum.GetValues<T>())
-            {
-                dictionary.Add(value, value.ToString());
-            }
+            dictionary.Add(value, value.ToString());
         }
-
-        public string this[T value] => dictionary[value];
     }
+
+    public string this[T value] => dictionary[value];
 }

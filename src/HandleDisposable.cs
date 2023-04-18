@@ -1,33 +1,32 @@
 using System;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public class HandleDisposable : IDisposable
 {
-    public class HandleDisposable : IDisposable
+    public IntPtr Handle { get; private set; }
+
+    public HandleDisposable(IntPtr handle)
     {
-        public IntPtr Handle { get; private set; }
+        Handle = handle;
+    }
 
-        public HandleDisposable(IntPtr handle)
+    public void Dispose()
+    {
+        if (Handle != IntPtr.Zero)
         {
-            Handle = handle;
+            WinApi.Kernel32.CloseHandle(Handle);
+            Handle = IntPtr.Zero;
+            GC.SuppressFinalize(this);
         }
+    }
 
-        public void Dispose()
+    ~HandleDisposable()
+    {
+        if (Handle != IntPtr.Zero)
         {
-            if (Handle != IntPtr.Zero)
-            {
-                WinApi.Kernel32.CloseHandle(Handle);
-                Handle = IntPtr.Zero;
-                GC.SuppressFinalize(this);
-            }
-        }
-
-        ~HandleDisposable()
-        {
-            if (Handle != IntPtr.Zero)
-            {
-                WinApi.Kernel32.CloseHandle(Handle);
-                Handle = IntPtr.Zero;
-            }
+            WinApi.Kernel32.CloseHandle(Handle);
+            Handle = IntPtr.Zero;
         }
     }
 }

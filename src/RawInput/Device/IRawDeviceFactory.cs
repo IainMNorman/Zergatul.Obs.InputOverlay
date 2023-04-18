@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace Zergatul.Obs.InputOverlay.RawInput.Device
+namespace Earthware.PrimeGskMirror.GamepadHandler.RawInput.Device;
+
+public interface IRawDeviceFactory : IDisposable
 {
-    public interface IRawDeviceFactory : IDisposable
-    {
-        RawDevice FromHDevice(IntPtr hDevice);
-    }
+    RawDevice FromHDevice(IntPtr hDevice);
 }

@@ -1,16 +1,15 @@
-using Zergatul.Obs.InputOverlay.RawInput.Device;
+using Earthware.PrimeGskMirror.GamepadHandler.RawInput.Device;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler.Events;
+
+public readonly struct DeviceEvent
 {
-    public readonly struct DeviceEvent
-    {
-        public RawDevice Device { get; }
-        public bool Attached { get; }
+    public RawDevice Device { get; }
+    public bool Attached { get; }
 
-        public DeviceEvent(RawDevice device, bool attached)
-        {
-            Device = device;
-            Attached = attached;
-        }
+    public DeviceEvent(RawDevice device, bool attached)
+    {
+        Device = device;
+        Attached = attached;
     }
 }

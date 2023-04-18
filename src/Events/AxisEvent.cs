@@ -1,16 +1,15 @@
-using Zergatul.Obs.InputOverlay.RawInput.Device;
+using Earthware.PrimeGskMirror.GamepadHandler.RawInput.Device;
 
-namespace Zergatul.Obs.InputOverlay.Events
+namespace Earthware.PrimeGskMirror.GamepadHandler.Events;
+
+public readonly struct AxisEvent
 {
-    public readonly struct AxisEvent
-    {
-        public RawGamepadDevice Gamepad { get; }
-        public Axis Axis { get; }
+    public RawGamepadDevice Gamepad { get; }
+    public Axis Axis { get; }
 
-        public AxisEvent(RawGamepadDevice gamepad, Axis axis)
-        {
-            Gamepad = gamepad;
-            Axis = axis;
-        }
+    public AxisEvent(RawGamepadDevice gamepad, Axis axis)
+    {
+        Gamepad = gamepad;
+        Axis = axis;
     }
 }

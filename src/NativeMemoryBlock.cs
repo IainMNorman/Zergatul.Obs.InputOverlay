@@ -1,43 +1,42 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public class NativeMemoryBlock : IDisposable
 {
-    public class NativeMemoryBlock : IDisposable
+    public IntPtr Pointer { get; private set; }
+    public int Length { get; private set; }
+
+    public NativeMemoryBlock(IntPtr source, int length)
     {
-        public IntPtr Pointer { get; private set; }
-        public int Length { get; private set; }
-
-        public NativeMemoryBlock(IntPtr source, int length)
+        if (length <= 0)
         {
-            if (length <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(length));
-            }
-
-            Pointer = Marshal.AllocHGlobal(length);
-            Length = length;
-
-            WinApi.Kernel32.CopyMemory(Pointer, source, (uint)length);
+            throw new ArgumentOutOfRangeException(nameof(length));
         }
 
-        public void Dispose()
-        {
-            if (Pointer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(Pointer);
-                Pointer = IntPtr.Zero;
-            }
+        Pointer = Marshal.AllocHGlobal(length);
+        Length = length;
 
-            GC.SuppressFinalize(this);
+        WinApi.Kernel32.CopyMemory(Pointer, source, (uint)length);
+    }
+
+    public void Dispose()
+    {
+        if (Pointer != IntPtr.Zero)
+        {
+            Marshal.FreeHGlobal(Pointer);
+            Pointer = IntPtr.Zero;
         }
 
-        ~NativeMemoryBlock()
+        GC.SuppressFinalize(this);
+    }
+
+    ~NativeMemoryBlock()
+    {
+        if (Pointer != IntPtr.Zero)
         {
-            if (Pointer != IntPtr.Zero)
-            {
-                Marshal.FreeHGlobal(Pointer);
-            }
+            Marshal.FreeHGlobal(Pointer);
         }
     }
 }

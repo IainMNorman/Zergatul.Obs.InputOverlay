@@ -1,20 +1,19 @@
 ﻿using System;
 
-namespace Zergatul.Obs.InputOverlay.RawInput.Device
+namespace Earthware.PrimeGskMirror.GamepadHandler.RawInput.Device;
+
+public class RawKeyboardDevice : RawDevice
 {
-    public class RawKeyboardDevice : RawDevice
+    public int NumberOfKeys { get; }
+
+    internal RawKeyboardDevice(IntPtr hDevice, WinApi.User32.RID_DEVICE_INFO_KEYBOARD keyboard)
+        : base(hDevice)
     {
-        public int NumberOfKeys { get; }
+        NumberOfKeys = keyboard.dwNumberOfKeysTotal;
+    }
 
-        internal RawKeyboardDevice(IntPtr hDevice, WinApi.User32.RID_DEVICE_INFO_KEYBOARD keyboard)
-            : base(hDevice)
-        {
-            NumberOfKeys = keyboard.dwNumberOfKeysTotal;
-        }
-
-        public override string ToString()
-        {
-            return $"Keyboard: NumberOfKeys={NumberOfKeys}";
-        }
+    public override string ToString()
+    {
+        return $"Keyboard: NumberOfKeys={NumberOfKeys}";
     }
 }

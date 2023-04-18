@@ -1,9 +1,8 @@
 using System;
 
-namespace Zergatul.Obs.InputOverlay.XInput
+namespace Earthware.PrimeGskMirror.GamepadHandler.XInput;
+
+public interface IXInputHandler : IDisposable
 {
-    public interface IXInputHandler : IDisposable
-    {
-        event Action<GamepadState> OnStateChanged;
-    }
+    event Action<GamepadState> OnStateChanged;
 }

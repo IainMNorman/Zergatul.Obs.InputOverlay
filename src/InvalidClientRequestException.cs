@@ -1,19 +1,18 @@
 using System;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public class InvalidClientRequestException : Exception
 {
-    public class InvalidClientRequestException : Exception
+    public InvalidClientRequestException()
+        : base()
     {
-        public InvalidClientRequestException()
-            : base()
-        {
 
-        }
+    }
 
-        public InvalidClientRequestException(string message)
-            : base(message)
-        {
+    public InvalidClientRequestException(string message)
+        : base(message)
+    {
 
-        }
     }
 }

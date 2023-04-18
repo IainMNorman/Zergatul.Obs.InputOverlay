@@ -1,71 +1,70 @@
 using System;
 using System.Buffers;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public class StaticSizeArrayBufferWriter : IBufferWriter<byte>
 {
-    public class StaticSizeArrayBufferWriter : IBufferWriter<byte>
+    private byte[] _buffer;
+    private int _position;
+
+    public StaticSizeArrayBufferWriter(byte[] buffer)
     {
-        private byte[] _buffer;
-        private int _position;
+        _buffer = buffer;
+        _position = 0;
+    }
 
-        public StaticSizeArrayBufferWriter(byte[] buffer)
+    public void Advance(int count)
+    {
+        _position += count;
+    }
+
+    public Memory<byte> GetMemory(int sizeHint = 0)
+    {
+        if (_position == _buffer.Length)
         {
-            _buffer = buffer;
-            _position = 0;
+            throw new InvalidOperationException("No space left.");
         }
 
-        public void Advance(int count)
+        if (sizeHint == 0)
         {
-            _position += count;
+            return _buffer.AsMemory(_position, _buffer.Length - _position);
+        }
+        else
+        {
+            if (_position + sizeHint > _buffer.Length)
+            {
+                throw new InvalidOperationException("Not enough space.");
+            }
+
+            return _buffer.AsMemory(_position, sizeHint);
+        }
+    }
+
+    public Span<byte> GetSpan(int sizeHint = 0)
+    {
+        if (_position == _buffer.Length)
+        {
+            throw new InvalidOperationException("No space left.");
         }
 
-        public Memory<byte> GetMemory(int sizeHint = 0)
+        if (sizeHint == 0)
         {
-            if (_position == _buffer.Length)
-            {
-                throw new InvalidOperationException("No space left.");
-            }
-
-            if (sizeHint == 0)
-            {
-                return _buffer.AsMemory(_position, _buffer.Length - _position);
-            }
-            else
-            {
-                if (_position + sizeHint > _buffer.Length)
-                {
-                    throw new InvalidOperationException("Not enough space.");
-                }
-
-                return _buffer.AsMemory(_position, sizeHint);
-            }
+            return _buffer.AsSpan(_position, _buffer.Length - _position);
         }
-
-        public Span<byte> GetSpan(int sizeHint = 0)
+        else
         {
-            if (_position == _buffer.Length)
+            if (_position + sizeHint > _buffer.Length)
             {
-                throw new InvalidOperationException("No space left.");
+                throw new InvalidOperationException("Not enough space.");
             }
 
-            if (sizeHint == 0)
-            {
-                return _buffer.AsSpan(_position, _buffer.Length - _position);
-            }
-            else
-            {
-                if (_position + sizeHint > _buffer.Length)
-                {
-                    throw new InvalidOperationException("Not enough space.");
-                }
-
-                return _buffer.AsSpan(_position, sizeHint);
-            }
+            return _buffer.AsSpan(_position, sizeHint);
         }
+    }
 
-        public Memory<byte> GetWritten()
-        {
-            return _buffer.AsMemory(0, _position);
-        }
+    public Memory<byte> GetWritten()
+    {
+        return _buffer.AsMemory(0, _position);
     }
 }

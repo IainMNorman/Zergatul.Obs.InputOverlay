@@ -1,96 +1,96 @@
 using Microsoft.Extensions.Logging;
+
 using System;
 using System.Threading;
 
-namespace Zergatul.Obs.InputOverlay.XInput
+namespace Earthware.PrimeGskMirror.GamepadHandler.XInput;
+
+using static WinApi.XInput;
+
+public class XInputHandler : IXInputHandler
 {
-    using static WinApi.XInput;
+    private const int PollingFrequency = 60;
+    private const int PollingDelay = 1000 / PollingFrequency;
 
-    public class XInputHandler : IXInputHandler
+    public event Action<GamepadState> OnStateChanged;
+
+    private readonly ILogger _logger;
+    private Thread _pollingThread;
+    private volatile bool _stopRequested;
+    private XINPUT_GAMEPAD?[] _gamepads;
+
+    public XInputHandler(ILogger<XInputHandler> logger)
     {
-        private const int PollingFrequency = 60;
-        private const int PollingDelay = 1000 / PollingFrequency;
+        _logger = logger;
 
-        public event Action<GamepadState> OnStateChanged;
+        _gamepads = new XINPUT_GAMEPAD?[XUSER_MAX_COUNT];
 
-        private readonly ILogger _logger;
-        private Thread _pollingThread;
-        private volatile bool _stopRequested;
-        private XINPUT_GAMEPAD?[] _gamepads;
+        _pollingThread = new Thread(PollingThreadFunc);
+        _pollingThread.Start();
+    }
 
-        public XInputHandler(ILogger<XInputHandler> logger)
+    public void Dispose()
+    {
+        _stopRequested = true;
+        if (_pollingThread != null)
         {
-            _logger = logger;
-
-            _gamepads = new XINPUT_GAMEPAD?[XUSER_MAX_COUNT];
-
-            _pollingThread = new Thread(PollingThreadFunc);
-            _pollingThread.Start();
+            _pollingThread.Join();
+            _pollingThread = null;
         }
 
-        public void Dispose()
+        _logger.LogDebug("Disposed");
+    }
+
+    private void PollingThreadFunc()
+    {
+        int counter = 0;
+
+        while (!_stopRequested)
         {
-            _stopRequested = true;
-            if (_pollingThread != null)
+            if (++counter == PollingFrequency)
             {
-                _pollingThread.Join();
-                _pollingThread = null;
-            }
-
-            _logger.LogDebug("Disposed");
-        }
-
-        private void PollingThreadFunc()
-        {
-            int counter = 0;
-
-            while (!_stopRequested)
-            {
-                if (++counter == PollingFrequency)
-                {
-                    counter = 0;
-
-                    for (int i = 0; i < XUSER_MAX_COUNT; i++)
-                    {
-                        if (_gamepads[i] == null)
-                        {
-                            if (XInputGetState(i, out var state) == WinApi.Win32Error.ERROR_SUCCESS)
-                            {
-                                _gamepads[i] = state.Gamepad;
-                                OnStateChanged?.Invoke(new GamepadState(i, state));
-
-                                _logger.LogInformation($"Detected new XInput gamepad at index {i}.");
-                            }
-                        }
-                    }
-                }
+                counter = 0;
 
                 for (int i = 0; i < XUSER_MAX_COUNT; i++)
                 {
                     if (_gamepads[i] == null)
                     {
-                        continue;
-                    }
-
-                    if (XInputGetState(i, out var state) == WinApi.Win32Error.ERROR_SUCCESS)
-                    {
-                        if (!state.Gamepad.Equals(_gamepads[i].Value))
+                        if (XInputGetState(i, out var state) == WinApi.Win32Error.ERROR_SUCCESS)
                         {
                             _gamepads[i] = state.Gamepad;
                             OnStateChanged?.Invoke(new GamepadState(i, state));
+
+                            _logger.LogInformation($"Detected new XInput gamepad at index {i}.");
                         }
                     }
-                    else
-                    {
-                        _gamepads[i] = null;
-                        OnStateChanged?.Invoke(new GamepadState { Index = i });
+                }
+            }
 
-                        _logger.LogInformation($"XInput gamepad at index {i} detached.");
-                    }
+            for (int i = 0; i < XUSER_MAX_COUNT; i++)
+            {
+                if (_gamepads[i] == null)
+                {
+                    continue;
                 }
 
-                Thread.Sleep(PollingDelay);
+                if (XInputGetState(i, out var state) == WinApi.Win32Error.ERROR_SUCCESS)
+                {
+                    if (!state.Gamepad.Equals(_gamepads[i].Value))
+                    {
+                        _gamepads[i] = state.Gamepad;
+                        OnStateChanged?.Invoke(new GamepadState(i, state));
+                    }
+                }
+                else
+                {
+                    _gamepads[i] = null;
+                    OnStateChanged?.Invoke(new GamepadState { Index = i });
+
+                    _logger.LogInformation($"XInput gamepad at index {i} detached.");
+                }
             }
+
+            Thread.Sleep(PollingDelay);
         }
     }
 }

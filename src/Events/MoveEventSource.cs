@@ -1,9 +1,8 @@
-namespace Zergatul.Obs.InputOverlay.Events
+namespace Earthware.PrimeGskMirror.GamepadHandler.Events;
+
+public enum MoveEventSource
 {
-    public enum MoveEventSource
-    {
-        None = 0,
-        RawMouse = 1,
-        Mouse = 2
-    }
+    None = 0,
+    RawMouse = 1,
+    Mouse = 2
 }

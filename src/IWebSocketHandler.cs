@@ -2,10 +2,9 @@ using System;
 using System.Net.WebSockets;
 using System.Threading.Tasks;
 
-namespace Zergatul.Obs.InputOverlay
+namespace Earthware.PrimeGskMirror.GamepadHandler;
+
+public interface IWebSocketHandler : IDisposable
 {
-    public interface IWebSocketHandler : IDisposable
-    {
-        Task HandleWebSocket(WebSocket ws);
-    }
+    Task HandleWebSocket(WebSocket ws);
 }

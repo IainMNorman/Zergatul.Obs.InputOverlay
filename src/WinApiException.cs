@@ -1,20 +1,19 @@
 using System;
 using System.Runtime.InteropServices;
 
-namespace Zergatul.Obs.InputOverlay
-{
-    public class WinApiException : Exception
-    {
-        public WinApiException()
-            : this(null)
-        {
-            
-        }
+namespace Earthware.PrimeGskMirror.GamepadHandler;
 
-        public WinApiException(string message)
-            : base(message)
-        {
-            HResult = Marshal.GetLastWin32Error();
-        }
+public class WinApiException : Exception
+{
+    public WinApiException()
+        : this(null)
+    {
+
+    }
+
+    public WinApiException(string message)
+        : base(message)
+    {
+        HResult = Marshal.GetLastWin32Error();
     }
 }
